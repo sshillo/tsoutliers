@@ -165,7 +165,7 @@ TsoFast <- function(y, xreg = NULL, cval = NULL, delta = 0.7, n.start = 50,
   
   ##NOTE
   # rerunning "auto.arima" may not be necessary at this point
-  
+  #print(xregall)
   if (tsmethod == "stsm") {
     fit <- do.call("stsmFit", args = c(list(x = y, xreg = xregall), args.tsmethod))
   } else {
