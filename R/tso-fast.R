@@ -207,7 +207,12 @@ TsoFast <- function(y, xreg = NULL, cval = NULL, delta = 0.7, n.start = 50,
     yadj <- if(is.ts(y)) y else y@y
   }
   
-  structure(list(outliers = moall, y = if(is.ts(y)) y else y@y, yadj = yadj, 
+  #moall = moall[abs(moall$tstat) > 3.5,]
+  #rownames(moall) <- NULL
+  
+  print(moall)
+
+  structure(list(outliers = moall, topoutliers = moall[abs(moall$tstat) > 3.5,], y = if(is.ts(y)) y else y@y, yadj = yadj, 
                  cval = cval0, fit = fit, effects = oeff, times = outtimes), 
             class = "tsoutliers")
 }

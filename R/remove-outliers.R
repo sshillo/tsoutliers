@@ -4,7 +4,6 @@ remove.outliers <- function(x, y, cval = NULL,
   delta = 0.7, n.start = 50, tsmethod.call = NULL, 
   fdiff = NULL, logfile = NULL)
 {
-  print("REMOVE OUTLIERS")
   if (is.null(tsmethod.call))
     stop(paste(sQuote("tsmethod.call"), "cannot be NULL"))
 
@@ -21,7 +20,6 @@ remove.outliers <- function(x, y, cval = NULL,
   # function should be ready to be passed here
 
   moall <- x$outliers
-  print(moall)
   if (is.null(moall) || nrow(moall) == 0)
   {
     #cat("the list of outliers is empty\n")

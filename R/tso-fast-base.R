@@ -42,7 +42,7 @@ TsoFastBase <- function(x, xreg = NULL, cval = 3.5, delta = 0.7, n.start = 50,
   
   if (nrow(stage1$outliers) > 0)
   {
-    stage1$outliers = stage1$outliers[order(-abs(stage1$outliers$tstat)),][1:10,]
+    stage1$outliers = stage1$outliers[order(-abs(stage1$outliers$tstat)),][1:20,]
     stage2 <- remove.outliers(x = stage1, y = y, cval = remove.cval, 
                               method = remove.method, delta = delta, n.start = n.start, 
                               tsmethod.call = fit$call, fdiff = NULL, logfile = logfile)

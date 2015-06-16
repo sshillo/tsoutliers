@@ -115,9 +115,14 @@ locate.outliers.iloop <- function(resid, pars, cval = 3.5,
 
   while (iter < maxit)
   {
+    print("locate outliers")
     mo <- locate.outliers(resid = resid, pars = pars, cval = cval, 
       types = types, delta = delta, n.start = n.start)
+    
+    mo = mo[order(-abs(mo$tstat)),][1:20,]
 
+    print("locate done")
+    
     if (!is.null(logfile))
     {
       msg <- paste("\niloop, iteration:", iter, "\n")
@@ -156,6 +161,10 @@ locate.outliers.iloop <- function(resid, pars, cval = 3.5,
       break
 
     moall <- rbind(moall, mo)
+    
+    print("got here")
+    print(dim(moall))
+
 
     ##NOTE
     # in a previous version consecutive LS were removed at 
@@ -170,6 +179,8 @@ locate.outliers.iloop <- function(resid, pars, cval = 3.5,
 
     oxreg <- outliers.regressors(pars = pars, mo = mo, n = n, weights = TRUE,
       delta = delta, freq = s, n.start = n.start)
+    
+    print("got regressors")
 
     #resid0 <- resid
     resid <- resid - rowSums(oxreg)
@@ -280,10 +291,12 @@ locate.outliers.oloop <- function(y, fit, types = c("AO", "LS", "TC"),
 
     # locate possible outliers
 
+    print("begin inner")
     mo <- locate.outliers.iloop(resid = resid, pars = pars, cval = cval, 
       types = types, maxit = maxit.iloop, delta = delta, n.start = n.start, 
       logfile = logfile)
-    print("begin inner")
+    print("inner finish")
+    
 
     if (!is.null(logfile))
     {
