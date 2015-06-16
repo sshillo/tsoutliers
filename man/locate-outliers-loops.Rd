@@ -139,18 +139,7 @@ Banco de España, Servicio de Estudios. Working paper number 9915.
 # and stops in the first iteration, while the outer loop detects 
 # a new outlier
 data("hicp")
-y <- log(hicp[["011600"]])
-fit <- arima(y, order = c(1, 1, 0), seasonal = list(order = c(2, 0, 2)))
-resid <- residuals(fit)
-pars <- coefs2poly(fit)
-otypes <- c("AO", "LS", "TC")
-mo0 <- locate.outliers(resid, pars, types = otypes)
-mo0
-mo1 <- locate.outliers.iloop(resid, pars, types = otypes)
-mo1
-mo2 <- locate.outliers.oloop(y, fit, types = otypes)
-mo2$iter
-mo2$outliers
+
 }
 
 \keyword{ts}
