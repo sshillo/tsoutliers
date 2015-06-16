@@ -4,6 +4,7 @@ remove.outliers <- function(x, y, cval = NULL,
   delta = 0.7, n.start = 50, tsmethod.call = NULL, 
   fdiff = NULL, logfile = NULL)
 {
+  print("REMOVE OUTLIERS")
   if (is.null(tsmethod.call))
     stop(paste(sQuote("tsmethod.call"), "cannot be NULL"))
 
@@ -20,6 +21,7 @@ remove.outliers <- function(x, y, cval = NULL,
   # function should be ready to be passed here
 
   moall <- x$outliers
+  print(moall)
   if (is.null(moall) || nrow(moall) == 0)
   {
     #cat("the list of outliers is empty\n")
@@ -48,6 +50,7 @@ remove.outliers <- function(x, y, cval = NULL,
       cval <- round(3 + 0.0025 * (n - 50), 2)
   }
 
+  print("cval")
   # regressor variables (other than outliers)
   # "xregfixed" will be either NULL or a matrix with column names
 
@@ -62,15 +65,21 @@ remove.outliers <- function(x, y, cval = NULL,
 
   xreg <- outliers.effects(mo = moall, n = x$fit$n, weights = FALSE,
     delta = delta, pars = x$fit$pars, n.start = n.start, freq = frequency(y))
+  
+  #print(xreg)
+  #print(xregfixed)
 
   iter <- 0
 
   if (method == "en-masse")
   {
+    print("en-masse start")
     while (TRUE)
     {
+      print("en-masse loop")
       #if (!is.null(tsmethod.call))
       xregall <- cbind(xregfixed, xreg)
+      print("rows")
       colnames(xregall) <- c(xregfixed.nms, colnames(xreg))
 
       ##NOTE
@@ -98,11 +107,16 @@ remove.outliers <- function(x, y, cval = NULL,
 
       if (tsmethod.call[[1]] == "auto.arima") {
         tsmethod.call$x <- NULL # this could be done outside this loop
+        print("en-masse yo1")
+        #print(xregall)
+        print(dim(xregall))
+        print(tsmethod.call)
         fit <- do.call("auto.arima", args = c(list(x = y), 
-          as.list(tsmethod.call[-1]), list(xreg = xregall)))
+          as.list(tsmethod.call[-1])))
       } else {
         fit <- eval(as.call(c(as.list(tsmethod.call), list(xreg = xregall))))
       }
+      print("en-masse yo2")
 
       if (!is.null(logfile))
       {
@@ -113,6 +127,7 @@ remove.outliers <- function(x, y, cval = NULL,
 
       if (tsmethod == "stsm")
       {
+        print("en-masse yo3")
         #print(fit, vcov.type = "optimHessian")
         #xregcoefs <- fit$xreg$coef
         #stde <- fit$xreg$stde
@@ -129,6 +144,7 @@ remove.outliers <- function(x, y, cval = NULL,
         xregcoefs <- coef(fit)[id]
         tstats <- xregcoefs / sqrt(diag(fit$var.coef)[id])
       }
+      print("en-masse yo4")
 
       # remove outliers if they are not significant
 
@@ -136,6 +152,7 @@ remove.outliers <- function(x, y, cval = NULL,
 
       if (length(ref) > 0)
       {
+        print("en-masse inner loop")
         moall <- moall[-ref,]
         # data.matrix() does not keep the column name when ncol=1
         # xreg <- data.matrix(xreg[,-ref])
@@ -144,7 +161,7 @@ remove.outliers <- function(x, y, cval = NULL,
           xreg <- matrix(xreg, ncol = 1)
           colnames(xreg) <- paste(as.character(moall[,"type"]), moall[,"ind"], sep = "")
         }
-
+        print("en-masse here")
         if (!is.null(logfile))
         {
           cat(paste("outliers, iter:", iter, "\n"), file = logfile, append = TRUE)
@@ -161,27 +178,33 @@ remove.outliers <- function(x, y, cval = NULL,
   } else
   if (method == "bottom-up")
   {
+    print("bottom up")
     ref <- order(abs(moall[,"tstat"]), decreasing = TRUE)
     id <- idrm <- NULL
     xregaux <- matrix(nrow = nrow(xreg), ncol = 0)
-
     for (i in ref)
     {
+      print("loop")
       id <- c(id, i)
       if (length(id) == 1) {
+        print("reg 1")
         xregaux <- matrix(xreg[,i], ncol = 1, dimnames = list(NULL, colnames(xreg)[i]))
       } else {
 stopifnot(length(id) > 1)
+        print("reg > 1")
         xregaux <- xreg[,id]
       }
 
       if (!is.null(xregfixed))
       {
+        print("reg not null")
         xregall <- cbind(xregfixed, xregaux)
         colnames(xregall) <- c(xregfixed.nms, colnames(xregaux))
       } else xregall <- xregaux
 
       if (tsmethod.call[[1]] == "auto.arima") {
+        print("auto.arima")
+        #print(xregall)
         tsmethod.call$x <- NULL # this could be done before the current loop
         fit <- do.call("auto.arima", args = c(list(x = y), 
           as.list(tsmethod.call[-1]), list(xreg = xregall)))  #xregaux
@@ -255,6 +278,7 @@ stopifnot(length(id) > 1)
   } #else # not necessary, it would be caught by match.arg(method) above
     #stop("unkown method")
 
+  print("made it")
   if (nrow(moall) == 0)
   {
 stopifnot(ncol(xreg) == 0)

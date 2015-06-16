@@ -106,6 +106,8 @@ tso <- function(y, xreg = NULL, cval = NULL, delta = 0.7, n.start = 50,
     remove.method = remove.method, remove.cval = remove.cval,
     tsmethod = tsmethod, args.tsmethod = args.tsmethod, 
     logfile = logfile)
+  
+  print("initial results")
 
   moall <- res$outliers
   outtimes <- res$times
@@ -128,13 +130,15 @@ if (tsmethod == "stsm")
     # tso0() does not return the fitted model
 
     res0 <- res
-
+    print("tso loop start")
     res <- tso0(x = res$yadj, xreg = xreg, cval = cval, 
       delta = delta, n.start = n.start,
       types = types, maxit.iloop = maxit.iloop, 
       remove.method = remove.method, remove.cval = remove.cval, 
       tsmethod = tsmethod, args.tsmethod = args.tsmethod, 
       logfile = logfile)
+    
+    print("got tso0 result")
 
     if (nrow(res$outliers) == 0)
       break
@@ -146,18 +150,18 @@ if (tsmethod == "stsm")
   }
 
   # final model given the detected outliers
-
+  print(paste("final model: num outliers ",dim(moall)))
   if (nrow(moall) > 0)
   {
     pars <- switch(tsmethod, 
       "auto.arima" = , "arima" = coefs2poly(coef(res0$fit), res0$fit$arma, TRUE),
       "stsm" = stsm::char2numeric(res0$fit$model))
-
+    print("outlier effects")
     xreg.outl <- outliers.effects(mo = moall, n = n, weights = FALSE, delta = delta, 
       pars = pars, n.start = n.start, freq = frequency(y))
   } else 
     xreg.outl <- NULL
-
+  print("found outlier effects")
   # all regressors
   # xreg: input regressor variables such as calendar effects (if any)
   # xreg.outl: outliers regressor variables detected above (if any)
@@ -172,10 +176,12 @@ if (tsmethod == "stsm")
   if (tsmethod == "stsm") {
     fit <- do.call("stsmFit", args = c(list(x = y, xreg = xregall), args.tsmethod))
   } else {
+    print("last fit")
     fit <- do.call(tsmethod, args = c(list(x = y, xreg = xregall), args.tsmethod))
     # this is for proper printing of results from "auto.arima" and "arima"
     fit$series <- yname
   }
+  print("last fit done")
 
   if (!is.null(xreg.outl))
   {
@@ -222,7 +228,7 @@ tso0 <- function(x, xreg = NULL, cval = 3.5, delta = 0.7, n.start = 50,
 {
   # "x" can be either a "ts" object or a "stsm" object;
   # if !inherits(x, "stsm") then two identical objects are stored ("x" and "y")
-
+  print("start tso")
   y <- if(is.ts(x)) { x } else x@y
 
   #remove.method <- match.arg(remove.method)
@@ -237,6 +243,7 @@ tso0 <- function(x, xreg = NULL, cval = 3.5, delta = 0.7, n.start = 50,
 
   fit <- do.call(fitmethod, args = c(list(x = x, xreg = xreg), args.tsmethod))
   #fit$series <- deparse(substitute(y))
+  
 
   if (!is.null(logfile))
   {
@@ -246,10 +253,12 @@ tso0 <- function(x, xreg = NULL, cval = 3.5, delta = 0.7, n.start = 50,
 
   # identify and locate prospective outliers by type
   # given a fitted time series model
-
+  print("here")
   stage1 <- locate.outliers.oloop(y = y, fit = fit, types = types, cval = cval, 
     maxit.iloop = maxit.iloop, delta = delta, n.start = n.start, logfile = logfile)
-
+  
+  stage1$outliers = stage1$outliers[order(-abs(stage1$outliers$tstat)),][1:20,]
+  print(paste("stage 1 complete",dim(stage1$outliers)))
   # choose and fit the model including the outlier regressors detected so far
   # (the weights of the outliers is fine tuned, to see it 
   # compare 'moall[,"coefhat"]' with 'coef(fit)["oeffi"]') then
@@ -261,6 +270,7 @@ tso0 <- function(x, xreg = NULL, cval = 3.5, delta = 0.7, n.start = 50,
       method = remove.method, delta = delta, n.start = n.start, 
       tsmethod.call = fit$call, fdiff = NULL, logfile = logfile)
 
+    print("removed outliers")
 #moall <- stage2$outliers
 stopifnot(ncol(stage2$xreg) == length(stage2$xregcoefs))
   } else 
@@ -272,6 +282,7 @@ stopifnot(ncol(stage2$xreg) == length(stage2$xregcoefs))
   if (!is.null(stage2$xreg))
   {
     # stage2$fit$xreg is not returned by arima()
+    print("stage2 next")
     moall <- stage2$outliers
     moall[,"coefhat"] <- stage2$xregcoefs
     moall[,"tstat"] <- stage2$xregtstats
@@ -295,6 +306,7 @@ stopifnot(ncol(stage2$xreg) == length(stage2$xregcoefs))
     moall <- moall[oind,]
     outtimes <- outtimes[oind]
     rownames(moall) <- NULL
+    print("almost done")
 
   } else { # no outliers detected
     oeff <- NULL
@@ -310,7 +322,6 @@ stopifnot(ncol(stage2$xreg) == length(stage2$xregcoefs))
     cat(msg, file = logfile, append = TRUE)
     capture.output(moall, file = logfile, append = TRUE)
   }
-
   structure(list(outliers = moall, y = y, yadj = yadj, cval = cval,
     fit = stage2$fit, effects = oeff, times = outtimes), 
     class = "tsoutliers")

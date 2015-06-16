@@ -200,7 +200,7 @@ locate.outliers.oloop <- function(y, fit, types = c("AO", "LS", "TC"),
 # instead of "while(iter < maxit)", nevertheless, for safety it is 
 # better to define a maximum number of iterations
 
-  maxit <- 4
+  maxit <- maxit.iloop
 
   # when "fit" is the output of "auto.arima" the argument "y" 
   # could be avoided and set "y <- fit$x"
@@ -283,6 +283,7 @@ locate.outliers.oloop <- function(y, fit, types = c("AO", "LS", "TC"),
     mo <- locate.outliers.iloop(resid = resid, pars = pars, cval = cval, 
       types = types, maxit = maxit.iloop, delta = delta, n.start = n.start, 
       logfile = logfile)
+    print("begin inner")
 
     if (!is.null(logfile))
     {

@@ -13,7 +13,10 @@ outliers.regressors,
 plot.tsoutliers,
 remove.outliers,
 tso0,
-tso
+tso,
+TsoFastBase,
+TsoFast,
+TsoFast2
 )
 
 S3method(coefs2poly, default)
