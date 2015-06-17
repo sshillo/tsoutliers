@@ -8,7 +8,7 @@ Description: Detection of outliers in time series following the
 Author: Javier López-de-Lacalle <javlacalle@yahoo.es>
 Maintainer: Javier López-de-Lacalle <javlacalle@yahoo.es>
 Depends: R (>= 3.0.0)
-Imports: forecast, polynom, stsm, KFKSDS
+Imports: forecast, polynom, stsm, KFKSDS, data.table
 NeedsCompilation: no
 Encoding: UTF-8
 License: GPL-2

@@ -72,30 +72,9 @@ stopifnot(length(id) > 0)
   # if the t-statistics of more than one type outlier exceed "cval"
   # at a given time point then keep the outlier with higher abs(tstat)
 
-  ref <- mo[,"ind"][duplicated(mo[,"ind"])]
-  for (i in ref)
-  {
-    ind <- which(mo[,"ind"] == i)
-    moind <- mo[ind,]
-
-    ##NOTE
-    # in a previous version precedence was given to AO, LS and TC over IO; 
-    # in that case, an IO was found only when the t-statistic of the IO 
-    # exceeded the threshold "cval" and when the t-statistics for the other 
-    # types of outliers were below the critical value;
-    # if that rule is applied again in a future version double check that 
-    # this approach to remove duplicates is compatible with it
-
-    #if ("IO" %in% moind[,"type"]) {
-    #  tmp <- moind[which(moind[,"type"] != "IO"),]
-    #} else
-      tmp <- moind[which.max(abs(moind[,"tstat"])),]
-
-    mo <- mo[-ind,]
-    mo <- rbind(mo, tmp)
-  }
-
-  mo
+  print("SLOWNESS")
+  m2 <- data.table(mo)
+  as.data.frame(m2[tstat %in% m2[,list(tstat=max(tstat)),by=ind]$tstat])
 }
 
 locate.outliers.iloop <- function(resid, pars, cval = 3.5, 
@@ -121,8 +100,6 @@ locate.outliers.iloop <- function(resid, pars, cval = 3.5,
     
     end <- if (nrow(mo) > 20) 20 else nrow(mo)
     mo = mo[order(-abs(mo$tstat)),][1:end,]
-    
-    print(mo)
 
     print("locate done")
     
@@ -166,7 +143,6 @@ locate.outliers.iloop <- function(resid, pars, cval = 3.5,
     moall <- rbind(moall, mo)
     
     print("got here")
-    print(dim(moall))
 
 
     ##NOTE
@@ -186,7 +162,6 @@ locate.outliers.iloop <- function(resid, pars, cval = 3.5,
     print("got regressors")
 
     #resid0 <- resid
-    print(oxreg)
     resid <- resid - rowSums(oxreg)
 
     iter <- iter + 1
