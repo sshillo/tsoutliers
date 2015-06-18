@@ -174,7 +174,7 @@ TsoFast <- function(y, xreg = NULL, cval = NULL, delta = 0.7, n.start = 50,
       fit <- arima(y,order=res0$fit$arma[c(1,6,2)],xreg=xregall, seasonal=res0$fit$arma[c(3,7,4)])
     }, error = function(e) {
       print("fit error")
-      fit <- do.call(tsmethod, args = c(list(x = y, xreg = xregall, parallel=TRUE), args.tsmethod))
+      fit <<- do.call(tsmethod, args = c(list(x = y, xreg = xregall, parallel=TRUE), args.tsmethod))
     }
     )
     
