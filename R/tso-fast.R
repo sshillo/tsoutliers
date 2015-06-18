@@ -170,7 +170,8 @@ TsoFast <- function(y, xreg = NULL, cval = NULL, delta = 0.7, n.start = 50,
     fit <- do.call("stsmFit", args = c(list(x = y, xreg = xregall), args.tsmethod))
   } else {
     print("last fit")
-    fit <- do.call(tsmethod, args = c(list(x = y, xreg = xregall), args.tsmethod))
+    #fit <- do.call(tsmethod, args = c(list(x = y, xreg = xregall, parallel=TRUE), args.tsmethod))
+    fit <- arima(y,order=res0$fit$arma[c(1,6,2)],xreg=xregall, seasonal=res0$fit$arma[c(3,7,4)])
     # this is for proper printing of results from "auto.arima" and "arima"
     fit$series <- yname
   }
@@ -210,7 +211,6 @@ TsoFast <- function(y, xreg = NULL, cval = NULL, delta = 0.7, n.start = 50,
   #moall = moall[abs(moall$tstat) > 3.5,]
   #rownames(moall) <- NULL
   
-  print(moall)
 
   structure(list(outliers = moall, topoutliers = moall[abs(moall$tstat) > 3.5,], y = if(is.ts(y)) y else y@y, yadj = yadj, 
                  cval = cval0, fit = fit, effects = oeff, times = outtimes), 

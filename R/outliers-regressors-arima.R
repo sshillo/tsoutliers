@@ -62,6 +62,7 @@ outliers.regressors.ArimaPars <- function(pars, mo, n, weights = TRUE,
 
   AOxreg <- function(n, ind, w)
   {
+    print("additive reg")
     mI <- matrix(0, nrow = n, ncol = length(ind))
     mI[n * seq.int(0, ncol(mI) - 1) + ind] <- 1
 
@@ -138,8 +139,8 @@ outliers.regressors.ArimaPars <- function(pars, mo, n, weights = TRUE,
 
   if (length(indao <- which(mo[,"type"] == "AO")) > 0)
   {
-    oxreg <- cbind(oxreg, 
-      AOxreg(n, mo[indao,"ind"], mo[indao,"coefhat"]))
+    v <- AOxreg(n, mo[indao,"ind"], mo[indao,"coefhat"])
+    oxreg <- cbind(oxreg, v)
   }
 
   if (length(indls <- which(mo[,"type"] == "LS")) > 0)

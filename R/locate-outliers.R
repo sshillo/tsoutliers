@@ -98,7 +98,7 @@ locate.outliers.iloop <- function(resid, pars, cval = 3.5,
     mo <- locate.outliers(resid = resid, pars = pars, cval = cval, 
       types = types, delta = delta, n.start = n.start)
     
-    end <- if (nrow(mo) > 20) 20 else nrow(mo)
+    end <- if (nrow(mo) > 15) 15 else nrow(mo)
     mo = mo[order(-abs(mo$tstat)),][1:end,]
 
     print("locate done")
