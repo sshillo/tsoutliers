@@ -162,6 +162,8 @@ locate.outliers.iloop <- function(resid, pars, cval = 3.5,
     print("got regressors")
 
     #resid0 <- resid
+    if(is.null(oxreg))
+      break
     resid <- resid - rowSums(oxreg)
 
     iter <- iter + 1
@@ -176,7 +178,7 @@ locate.outliers.iloop <- function(resid, pars, cval = 3.5,
 ##FIXME
 # see return "iter"
 
-  moall
+  na.omit(moall)
 }
 
 locate.outliers.oloop <- function(y, fit, types = c("AO", "LS", "TC"), 
